@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/syllabus_model.dart';
 import '../utils/responsive.dart';
+import '../utils/app_theme.dart';
 
 // --- STANDARD SELECTION SCREEN ---
 class StandardSelectionScreen extends StatelessWidget {
@@ -82,6 +83,46 @@ class StandardSelectionScreen extends StatelessWidget {
                 'Standard 5',
                 5,
                 Colors.indigo,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Researcher',
+                'Standard 6',
+                6,
+                Colors.teal,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Scientist',
+                'Standard 7',
+                7,
+                Colors.pink,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Historian',
+                'Standard 8',
+                8,
+                Colors.redAccent,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Philosopher',
+                'Standard 9',
+                9,
+                Colors.deepOrange,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Legend',
+                'Standard 10',
+                10,
+                Colors.cyan,
               ),
               SizedBox(height: responsive.gap(40)),
             ],
@@ -398,7 +439,7 @@ class SubjectSelectionScreen extends StatelessWidget {
     final responsive = Responsive(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F1FF),
+      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
       appBar: AppBar(
         title: Text(
           mode == 'games' ? 'Select Game' : 'Select Subject',
@@ -577,8 +618,8 @@ class GamesListScreen extends StatelessWidget {
       'games',
     );
     // For Class 1-5, we use the topic-based layout (Class 1 style)
-    // For Class 6+, we might stick to this or use something else, but request was explicitly for 2-5 to match 1.
-    final useClass1Style = standard <= 5;
+    // For Class 1-10, we use the topic-based layout
+    final useClass1Style = standard <= 10;
 
     final topics =
         useClass1Style
@@ -587,7 +628,7 @@ class GamesListScreen extends StatelessWidget {
     final responsive = Responsive(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F1FF),
+      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
       appBar: AppBar(
         title: Text(
           '$subject Games',
@@ -604,7 +645,7 @@ class GamesListScreen extends StatelessWidget {
       body:
           (filteredGames.isEmpty && topics.isEmpty)
               ? _buildEmptyState(subject)
-              : (standard <= 5)
+              : (standard <= 10)
               ? ListView.builder(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 25,
@@ -744,6 +785,7 @@ class GamesListScreen extends StatelessWidget {
                     'levels': levels,
                     'subject': subject,
                     'currentUnlockedLevel': currentLevel,
+                    'std': standard,
                   },
                 );
               },
@@ -979,7 +1021,7 @@ class LessonsListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F1FF),
+      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
       appBar: AppBar(
         title: Text(
           '$subject Gallery',
@@ -993,8 +1035,10 @@ class LessonsListScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
       ),
       body:
-          // Use Book Library style for Class 1-5
-          standard <= 5 ? _buildBookLibrary(context) : _buildTopicList(context),
+          // Use Book Library style for Class 1-10
+          standard <= 10
+              ? _buildBookLibrary(context)
+              : _buildTopicList(context),
     );
   }
 
@@ -1134,7 +1178,73 @@ class LessonsListScreen extends StatelessWidget {
             return 'https://drive.google.com/file/d/1vtCZD2gck4BkE52JRQRjCN-QOViqiSZy/view?usp=drive_link';
           if (sub == 'Social' && term == 2)
             return 'https://drive.google.com/file/d/1d5Jn-Xh0sBfwIRPnIveKDFctAsGnVTm0/view?usp=drive_link';
+          return '';
 
+        // --- CLASS 6 LINKS ---
+        case 6:
+          if (sub == 'Tamil' && term == 1)
+            return 'https://drive.google.com/file/d/1GKlNl6lqAm7uBoQnf-M9YC5LAwz2o7AP/view?usp=drive_link';
+          if (sub == 'English' && term == 1)
+            return 'https://drive.google.com/file/d/1t1Y_mNQQX-hPfd_bOaIMejdEIoc0gryD/view?usp=drive_link';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/1ETfKjZacJdz2rGU90MyarUU342EepJu0/view?usp=drive_link';
+          if (sub == 'Science' && term == 1)
+            return 'https://drive.google.com/file/d/1aSeibavUSKmIiYG651XqRcutgOE3iU2K/view?usp=drive_link';
+          if (sub == 'Social' && term == 1)
+            return 'https://drive.google.com/file/d/1aSeibavUSKmIiYG651XqRcutgOE3iU2K/view?usp=drive_link';
+          return '';
+
+        // --- CLASS 7 LINKS ---
+        case 7:
+          if (sub == 'Tamil' && term == 1)
+            return 'https://drive.google.com/file/d/1xFXOfPrrIi_75sHbVXoL9Koio3Y5i2ek/view?usp=drive_link';
+          if (sub == 'English' && term == 1)
+            return 'https://drive.google.com/file/d/1LO_CpaUMaN_5K9xMkPKlchNN2sVS7cDy/view?usp=drive_link';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/1AncByF8pgld79jNEnSl1lqvUFXzGefo2/view?usp=drive_link';
+          if (sub == 'Science' && term == 1)
+            return 'https://drive.google.com/file/d/1N1Bw8EF0joG30lpV5BDKHDyyFaKY6KgV/view?usp=drive_link';
+          if (sub == 'Social' && term == 1)
+            return 'https://drive.google.com/file/d/1N1Bw8EF0joG30lpV5BDKHDyyFaKY6KgV/view?usp=drive_link';
+          return '';
+        // --- CLASS 8 LINKS ---
+        case 8:
+          if (sub == 'Tamil' && term == 1)
+            return 'https://drive.google.com/file/d/1hrplC7jlmoBeP6ywzbyjj-oZACeaVL9q/view?usp=drive_link';
+          if (sub == 'English' && term == 1)
+            return 'https://drive.google.com/file/d/1CJLFPdSMdkyjlYFKNy6k94yuoJ_nvRKP/view?usp=drive_link';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/15ZT1EvI4sZiukzQaXBhc3DFcdMfBvpJK/view?usp=drive_link';
+          if (sub == 'Science' && term == 1)
+            return 'https://drive.google.com/file/d/1RXhpC2_TYM_JX3o04xUvFWUw0Pm_We1J/view?usp=drive_link';
+          if (sub == 'Social' && term == 1)
+            return 'https://drive.google.com/file/d/1FEgDn-JDKDzAuc_-EVzbJWz6s8vOlw1j/view?usp=drive_link';
+          return '';
+        // --- CLASS 9 LINKS ---
+        case 9:
+          if (sub == 'Tamil' && term == 1)
+            return 'https://drive.google.com/file/d/1zvxScEWn80hBWT4ET4JiGXgy_hj2kOao/view?usp=drive_link';
+          if (sub == 'English' && term == 1)
+            return 'https://drive.google.com/file/d/1ovWYjl0i-0FIaBPpa7RS5kS-udlVxRV-/view?usp=drive_link';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/1pP3E7FiBxeDKqnd6dfnMJxV3wChQy6js/view?usp=drive_link';
+          if (sub == 'Science' && term == 1)
+            return 'https://drive.google.com/file/d/1VJGHAzghFEKNAGymyzrhYcq-KJ-bsYRv/view?usp=drive_link';
+          if (sub == 'Social' && term == 1)
+            return 'https://drive.google.com/file/d/1oLYOfM7rvOCA0L-fa_PPNEkkI5_vBzwv/view?usp=drive_link';
+          return '';
+        // --- CLASS 10 LINKS ---
+        case 10:
+          if (sub == 'Tamil' && term == 1)
+            return 'https://drive.google.com/file/d/1vUUjbNvW02Nhdx3XLC2z976oUoPSBn9p/view?usp=drive_link';
+          if (sub == 'English' && term == 1)
+            return 'https://drive.google.com/file/d/1JoN_lz5cQVNdw72JcYLNwPWux-oSPj5F/view?usp=drive_link';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/1IU1vFa_KJDc_uOEERcN5U7IKdMJxIUqe/view?usp=drive_link';
+          if (sub == 'Science' && term == 1)
+            return 'https://drive.google.com/file/d/1Se_OBGNlgql3nHIN4L4kQQtmLG0VmGZk/view?usp=drive_link';
+          if (sub == 'Social' && term == 1)
+            return 'https://drive.google.com/file/d/1QzT1e02ttmOXolN9-IGAMkXV1EVbMg8R/view?usp=drive_link';
           return '';
 
         default:
@@ -1150,18 +1260,20 @@ class LessonsListScreen extends StatelessWidget {
         'icon': Icons.menu_book_rounded,
         'url': getBookUrl(standard, subject, 1),
       },
-      {
-        'title': 'Standard $standard $subject Textbook',
-        'term': 'Term 2',
-        'icon': Icons.menu_book_rounded,
-        'url': getBookUrl(standard, subject, 2),
-      },
-      {
-        'title': 'Standard $standard $subject Textbook',
-        'term': 'Term 3',
-        'icon': Icons.menu_book_rounded,
-        'url': getBookUrl(standard, subject, 3),
-      },
+      if (standard <= 5) ...[
+        {
+          'title': 'Standard $standard $subject Textbook',
+          'term': 'Term 2',
+          'icon': Icons.menu_book_rounded,
+          'url': getBookUrl(standard, subject, 2),
+        },
+        {
+          'title': 'Standard $standard $subject Textbook',
+          'term': 'Term 3',
+          'icon': Icons.menu_book_rounded,
+          'url': getBookUrl(standard, subject, 3),
+        },
+      ],
     ];
 
     return Column(
@@ -1415,6 +1527,7 @@ class LessonsListScreen extends StatelessWidget {
                     'levels': levels,
                     'subject': subject,
                     'currentUnlockedLevel': currentLevel,
+                    'std': standard,
                   },
                 );
               },
@@ -1458,6 +1571,10 @@ class LessonsListScreen extends StatelessWidget {
         return {'icon': Icons.palette_rounded, 'color': Colors.pink[400]};
       case 'Music':
         return {'icon': Icons.music_note_rounded, 'color': Colors.purple[400]};
+      case 'Science':
+        return {'icon': Icons.science_rounded, 'color': Colors.indigo[400]};
+      case 'Social':
+        return {'icon': Icons.public_rounded, 'color': Colors.blueAccent};
       case 'PE':
         return {
           'icon': Icons.fitness_center_rounded,
@@ -1527,7 +1644,7 @@ class TopicsListScreen extends StatelessWidget {
     final responsive = Responsive(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F1FF),
+      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
       appBar: AppBar(
         title: Text(
           '$subject Topics',
@@ -1584,6 +1701,7 @@ class TopicsListScreen extends StatelessWidget {
             'levels': levels,
             'subject': subject,
             'currentUnlockedLevel': 1, // TODO: Load from user progress
+            'std': standard,
           },
         );
       },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +10,7 @@ import 'screens/auth_screen.dart';
 import 'screens/level_map_screen.dart';
 import 'screens/drawing_screen.dart';
 import 'screens/book_viewer_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -60,8 +62,8 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => HomeScreen(
-                    standard: args['std'] as int,
-                    avatar: args['avatar'] as String,
+                    standard: (args['std'] as int?) ?? 1,
+                    avatar: (args['avatar'] as String?) ?? 'husky',
                   ),
             );
           case '/subject_selection':
@@ -69,8 +71,8 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => SubjectSelectionScreen(
-                    standard: args['std'] as int,
-                    mode: args['mode'] as String,
+                    standard: (args['std'] as int?) ?? 1,
+                    mode: (args['mode'] as String?) ?? 'lessons',
                   ),
             );
           case '/games_list':
@@ -78,8 +80,8 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => GamesListScreen(
-                    standard: args['std'] as int,
-                    subject: args['subject'] as String,
+                    standard: (args['std'] as int?) ?? 1,
+                    subject: (args['subject'] as String?) ?? 'Maths',
                   ),
             );
           case '/lessons_list':
@@ -87,8 +89,8 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => LessonsListScreen(
-                    standard: args['std'] as int,
-                    subject: args['subject'] as String,
+                    standard: (args['std'] as int?) ?? 1,
+                    subject: (args['subject'] as String?) ?? 'Tamil',
                   ),
             );
           case '/game_lesson':
@@ -96,9 +98,9 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => LessonGameScreen(
-                    title: args['title'] as String,
-                    standard: args['std'] as int,
-                    subject: args['subject'] as String,
+                    title: (args['title'] as String?) ?? 'Lesson',
+                    standard: (args['std'] as int?) ?? 1,
+                    subject: (args['subject'] as String?) ?? 'Maths',
                   ),
             );
           case '/game_quantity':
@@ -160,8 +162,8 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => TopicsListScreen(
-                    standard: args['std'] as int,
-                    subject: args['subject'] as String,
+                    standard: (args['std'] as int?) ?? 1,
+                    subject: (args['subject'] as String?) ?? 'Maths',
                   ),
             );
           case '/level_map':
@@ -169,10 +171,13 @@ class KidsLearningApp extends StatelessWidget {
             return MaterialPageRoute(
               builder:
                   (_) => LevelMapScreen(
-                    topicName: args['topicName'] as String,
-                    levels: args['levels'] as List<Map<String, dynamic>>,
-                    subject: args['subject'] as String,
-                    currentUnlockedLevel: args['currentUnlockedLevel'] as int,
+                    topicName: (args['topicName'] as String?) ?? 'Discovery',
+                    levels:
+                        (args['levels'] as List<Map<String, dynamic>>?) ?? [],
+                    subject: (args['subject'] as String?) ?? 'Science',
+                    currentUnlockedLevel:
+                        (args['currentUnlockedLevel'] as int?) ?? 1,
+                    standard: (args['std'] as int?) ?? 1,
                   ),
             );
           default:
@@ -197,15 +202,43 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
     _checkStatus();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkStatus() async {
-    await Future.delayed(const Duration(seconds: 3));
+    // Keep splash for at least 3.5 seconds to show animations
+    await Future.delayed(const Duration(milliseconds: 3500));
     if (!mounted) return;
 
     final box = Hive.box('studentBox');
@@ -228,30 +261,78 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF8B80F8),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.white,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.white,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.school_rounded,
-                size: 100,
-                color: Color(0xFF8B80F8),
-              ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: SvgPicture.asset(
+                    'assets/Education-bro.svg',
+                    height: 250,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      Text(
+                        'ARIVU',
+                        style: GoogleFonts.outfit(
+                          fontSize: 52,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF8B80F8),
+                          letterSpacing: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 4,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF8B80F8).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        'EMPOWERING EDUCATION',
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1E293B).withOpacity(0.6),
+                          letterSpacing: 3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 30),
-            Text(
-              'Arivu',
-              style: GoogleFonts.outfit(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+
+            // Loading indicator at bottom
+            Positioned(
+              bottom: 60,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: const SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF8B80F8),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

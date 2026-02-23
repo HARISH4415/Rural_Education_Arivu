@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
+import 'dart:ui';
 import '../utils/responsive.dart';
+import '../utils/app_theme.dart';
 
 class LevelMapScreen extends StatefulWidget {
   final String topicName;
   final List<Map<String, dynamic>> levels;
   final String subject;
   final int currentUnlockedLevel;
+  final int standard;
 
   const LevelMapScreen({
     super.key,
     required this.topicName,
     required this.levels,
     required this.subject,
+    required this.standard,
     this.currentUnlockedLevel = 1,
   });
 
@@ -46,9 +50,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
   Widget build(BuildContext context) {
     final theme = _getSubjectTheme(widget.subject);
     final responsive = Responsive(context);
+    final appTheme = AppTheme.getTheme(widget.standard);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F1FF),
+      backgroundColor: appTheme.backgroundColor,
       appBar: AppBar(
         title: Text(
           widget.topicName,
@@ -105,6 +110,34 @@ class _LevelMapScreenState extends State<LevelMapScreen>
               ),
             ),
           ),
+          // Floating decorations for a better map feel
+          ...List.generate(8, (index) {
+            final random = math.Random(index + 77); // Seeded random
+            return Positioned(
+              top: random.nextDouble() * 800 + 100,
+              left:
+                  (index % 2 == 0)
+                      ? random.nextDouble() * 40
+                      : 300 + random.nextDouble() * 40,
+              child: Opacity(
+                opacity: 0.12,
+                child: Transform.rotate(
+                  angle: random.nextDouble() * 3.14,
+                  child: Icon(
+                    [
+                      Icons.star_rounded,
+                      Icons.cloud_rounded,
+                      Icons.science_outlined,
+                      Icons.auto_awesome,
+                      Icons.rocket_launch_outlined,
+                    ][random.nextInt(5)],
+                    color: theme['color'],
+                    size: 35 + (random.nextDouble() * 25),
+                  ),
+                ),
+              ),
+            );
+          }),
           // Level map
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -547,7 +580,24 @@ class PathPainter extends CustomPainter {
       path.quadraticBezierTo(controlX, controlY, x2, y2);
     }
 
-    canvas.drawPath(path, paint);
+    // Draw dashed path
+    final dashPath = _createDashedPath(path, 15, 10);
+    canvas.drawPath(dashPath, paint);
+  }
+
+  Path _createDashedPath(Path source, double dashWidth, double dashSpace) {
+    final Path dest = Path();
+    for (final PathMetric metric in source.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        dest.addPath(
+          metric.extractPath(distance, distance + dashWidth),
+          Offset.zero,
+        );
+        distance += dashWidth + dashSpace;
+      }
+    }
+    return dest;
   }
 
   @override

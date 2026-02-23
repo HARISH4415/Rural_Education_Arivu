@@ -15,6 +15,9 @@ class SyllabusModel {
     } else if (standard >= 3 && standard <= 5) {
       // Class 3-5: Focus on Core Subjects + Science + Social
       return ['Tamil', 'English', 'Maths', 'Science', 'Social'];
+    } else if (standard >= 6 && standard <= 10) {
+      // Class 6-10: Tamil, English, Maths, Science, Social
+      return ['Tamil', 'English', 'Maths', 'Science', 'Social'];
     } else {
       return ['Maths', 'Science', 'English', 'History', 'Geography', 'Tamil'];
     }
@@ -107,6 +110,13 @@ class SyllabusModel {
         break;
       case 5:
         topicsSource = std5Topics;
+        break;
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      case 10:
+        topicsSource = seniorTopics;
         break;
       // Add other standards as needed
       default:

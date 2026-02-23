@@ -62,7 +62,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     switch (_currentIndex) {
       case 0:
-        return _currentStandard >= 6
+        if (_currentStandard >= 6 && _currentStandard <= 10) {
+          return _buildSecondaryHomeTab();
+        }
+        return _currentStandard >= 11
             ? _buildSeniorHomeTab()
             : _buildJuniorHomeTab();
       case 1:
@@ -75,7 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onUpdate: () => setState(() => _loadUserData()),
         );
       default:
-        return _currentStandard >= 6
+        if (_currentStandard >= 6 && _currentStandard <= 10) {
+          return _buildSecondaryHomeTab();
+        }
+        return _currentStandard >= 11
             ? _buildSeniorHomeTab()
             : _buildJuniorHomeTab();
     }
@@ -611,6 +617,477 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return Icons.face;
     }
+  }
+
+  // --- SECONDARY UI WIDGETS (Class 6-10) ---
+
+  Widget _buildSecondaryHomeTab() {
+    final responsive = Responsive(context);
+    final theme = AppTheme.getTheme(_currentStandard);
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: responsive.padding(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: responsive.hp(0.06)),
+          _buildSecondaryHeader(),
+          SizedBox(height: responsive.gap(20)),
+          _buildGlassSearchBar(theme),
+          SizedBox(height: responsive.gap(30)),
+          _buildSubjectScroller(theme),
+          SizedBox(height: responsive.gap(30)),
+          Text(
+            "Target for Today",
+            style: GoogleFonts.outfit(
+              fontSize: responsive.sp(20),
+              fontWeight: FontWeight.bold,
+              color: theme.primaryTextColor,
+            ),
+          ),
+          SizedBox(height: responsive.gap(15)),
+          _buildMissionCard(theme),
+          SizedBox(height: responsive.gap(30)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Learning Pathways",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(20),
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryTextColor,
+                ),
+              ),
+              Text(
+                "View All",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(14),
+                  fontWeight: FontWeight.w600,
+                  color: theme.cardGradient[0],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: responsive.gap(20)),
+          _buildPathwayGrid(theme),
+          SizedBox(height: responsive.gap(120)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecondaryHeader() {
+    final responsive = Responsive(context);
+    final theme = AppTheme.getTheme(_currentStandard);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(colors: theme.cardGradient),
+          ),
+          child: CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.white,
+            child: Icon(
+              _getAvatarIcon(_userData?['avatar'] ?? widget.avatar),
+              color: theme.cardGradient[1],
+              size: 30,
+            ),
+          ),
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Welcome back,",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(14),
+                  color: theme.secondaryTextColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                "${_userData?['name'] ?? 'Scholar'}",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(24),
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.notifications_active_outlined,
+            color: theme.cardGradient[0],
+            size: 24,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGlassSearchBar(AppTheme theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: theme.cardGradient[0].withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: "What do you want to learn today?",
+          hintStyle: GoogleFonts.outfit(
+            color: theme.secondaryTextColor.withOpacity(0.5),
+            fontSize: 16,
+          ),
+          icon: Icon(Icons.search_rounded, color: theme.cardGradient[0]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectScroller(AppTheme theme) {
+    final subjects = ['Tamil', 'English', 'Maths', 'Science', 'Social'];
+    final icons = [
+      Icons.menu_book_rounded,
+      Icons.translate_rounded,
+      Icons.functions_rounded,
+      Icons.biotech_rounded,
+      Icons.public_rounded,
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: List.generate(subjects.length, (index) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/lessons_list',
+                      arguments: {
+                        'std': _currentStandard,
+                        'subject': subjects[index],
+                      },
+                    );
+                  },
+                  child: Container(
+                    height: 70,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: theme
+                          .categoryColors[index % theme.categoryColors.length]
+                          .withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: theme
+                            .categoryColors[index % theme.categoryColors.length]
+                            .withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Icon(
+                      icons[index],
+                      color:
+                          theme.categoryColors[index %
+                              theme.categoryColors.length],
+                      size: 30,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  subjects[index],
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.primaryTextColor,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildMissionCard(AppTheme theme) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: theme.cardGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: theme.cardGradient[0].withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  "CLASS ${_currentStandard}",
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.amber[200],
+                size: 24,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "The Power of Algebra",
+            style: GoogleFonts.outfit(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Master linear equations with our latest simulation module.",
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 25),
+          Row(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    FractionallySizedBox(
+                      widthFactor: 0.75,
+                      child: Container(
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 15),
+              Text(
+                "75%",
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPathwayGrid(AppTheme theme) {
+    final pathways = [
+      {
+        'title': 'Video Lessons',
+        'desc': 'Watch & Learn',
+        'icon': Icons.play_circle_fill_rounded,
+        'color': theme.categoryColors[0],
+      },
+      {
+        'title': 'Practice Tests',
+        'desc': 'Check Knowledge',
+        'icon': Icons.edit_document,
+        'color': theme.categoryColors[1],
+      },
+      {
+        'title': 'Interactive Labs',
+        'desc': 'Experiment',
+        'icon': Icons.biotech_rounded,
+        'color': theme.categoryColors[2],
+      },
+      {
+        'title': 'Doubt Solve',
+        'desc': 'Ask Experts',
+        'icon': Icons.help_center_rounded,
+        'color': theme.categoryColors[3],
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 15,
+        mainAxisSpacing: 15,
+        childAspectRatio: 1.1,
+      ),
+      itemCount: pathways.length,
+      itemBuilder: (context, index) {
+        final item = pathways[index];
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(
+              color: (item['color'] as Color).withOpacity(0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: (item['color'] as Color).withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                item['icon'] as IconData,
+                color: item['color'] as Color,
+                size: 32,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                item['title'] as String,
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryTextColor,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                item['desc'] as String,
+                style: GoogleFonts.outfit(
+                  fontSize: 12,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSecondaryDailyFact(AppTheme theme) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.rocket_launch_rounded,
+                color: Colors.orangeAccent,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                "Did you know?",
+                style: GoogleFonts.outfit(
+                  color: Colors.white.withOpacity(0.7),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            "A day on Venus is longer than a year on Venus. It takes Venus longer to rotate once on its axis than to complete one orbit of the Sun!",
+            style: GoogleFonts.outfit(
+              color: Colors.white,
+              fontSize: 17,
+              height: 1.5,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // --- SENIOR UI WIDGETS ---

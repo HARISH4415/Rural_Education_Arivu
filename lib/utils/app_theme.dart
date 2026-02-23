@@ -36,7 +36,27 @@ class AppTheme {
     ],
   );
 
-  // Senior Theme (Class 6-12) - More mature, scientific look
+  // Secondary Theme (Class 6-10) - Professional, focused, modern
+  static final AppTheme secondary = AppTheme(
+    backgroundColor: const Color(0xFFF8FAFC), // Slate 50
+    cardGradient: const [
+      Color(0xFF6366F1),
+      Color(0xFF4F46E5),
+    ], // Indigo 500-600
+    accentColor: const Color(0xFFF43F5E), // Rose 500
+    navBarColor: const Color(0xFF1E293B),
+    primaryTextColor: const Color(0xFF0F172A), // Slate 900
+    secondaryTextColor: const Color(0xFF64748B), // Slate 500
+    categoryColors: [
+      const Color(0xFF818CF8), // Indigo 400
+      const Color(0xFFFB7185), // Rose 400
+      const Color(0xFF34D399), // Emerald 400
+      const Color(0xFF60A5FA), // Blue 400
+      const Color(0xFFFBBF24), // Amber 400
+    ],
+  );
+
+  // Senior Theme (Class 11-12) - More mature, scientific look
   static final AppTheme senior = AppTheme(
     backgroundColor: const Color(0xFFE0F7FA), // Light Cyan
     cardGradient: const [Color(0xFF00ACC1), Color(0xFF00838F)], // Cyan/Teal
@@ -54,8 +74,10 @@ class AppTheme {
   );
 
   static AppTheme getTheme(int standard) {
-    if (standard >= 6) {
+    if (standard >= 11) {
       return senior;
+    } else if (standard >= 6) {
+      return secondary;
     }
     return junior;
   }

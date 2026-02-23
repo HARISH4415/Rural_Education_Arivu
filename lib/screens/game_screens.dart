@@ -14,7 +14,7 @@ class CompareGameScreen extends StatefulWidget {
 
 class _CompareGameScreenState extends State<CompareGameScreen> {
   int currentIndex = 0;
-  int? selectedValue;
+  dynamic selectedValue;
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +67,8 @@ class _CompareGameScreenState extends State<CompareGameScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildCircle(currentQ['val1'] as int),
-                  _buildCircle(currentQ['val2'] as int),
+                  _buildCircle(currentQ['val1']),
+                  _buildCircle(currentQ['val2']),
                 ],
               ),
               const SizedBox(height: 60),
@@ -120,14 +120,26 @@ class _CompareGameScreenState extends State<CompareGameScreen> {
     );
   }
 
-  Widget _buildCircle(int value) {
+  Widget _buildCircle(dynamic value) {
     bool isSelected = selectedValue == value;
+    double size = 120.0;
+    double fontSize = 32.0;
+
+    if (value is int) {
+      int safeVal = value > 50 ? 50 : value;
+      size = 80.0 + (safeVal * 1.0); // Reduced base size and multiplier
+      fontSize = 24.0 + (safeVal * 0.2); // Reduced font size scaling
+    } else {
+      size = 140.0;
+      fontSize = 24.0;
+    }
+
     return GestureDetector(
       onTap: () => setState(() => selectedValue = value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 120 + (value * 2.0),
-        height: 120 + (value * 2.0),
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           color:
               isSelected
@@ -143,10 +155,11 @@ class _CompareGameScreenState extends State<CompareGameScreen> {
           child: Text(
             '$value',
             style: GoogleFonts.outfit(
-              fontSize: 32 + (value * 0.5),
+              fontSize: fontSize,
               fontWeight: FontWeight.bold,
               color: isSelected ? Colors.white : Colors.amber[900],
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
@@ -162,13 +175,24 @@ class _CompareGameScreenState extends State<CompareGameScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            title: Text(
-              'Awesome!',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+            title: Column(
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 60,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Awesome!',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             content: Text(
-              'You identified the numbers correctly!',
+              'You identified the answer correctly!',
               style: GoogleFonts.outfit(),
+              textAlign: TextAlign.center,
             ),
             actions: [
               TextButton(
