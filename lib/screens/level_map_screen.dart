@@ -528,10 +528,20 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         return {'icon': Icons.palette_rounded, 'color': Colors.pink[400]!};
       case 'Music':
         return {'icon': Icons.music_note_rounded, 'color': Colors.purple[400]!};
-      case 'PE':
+      case 'Computer':
         return {
-          'icon': Icons.fitness_center_rounded,
-          'color': Colors.teal[400]!,
+          'icon': Icons.computer_rounded,
+          'color': const Color(0xFF6366F1), // Indigo
+        };
+      case 'Chemistry':
+        return {
+          'icon': Icons.biotech_rounded,
+          'color': const Color(0xFFEC4899), // Pink
+        };
+      case 'Physics':
+        return {
+          'icon': Icons.science_rounded,
+          'color': const Color(0xFF06B6D4), // Cyan
         };
       default:
         return {'icon': Icons.book_rounded, 'color': Colors.grey[400]!};

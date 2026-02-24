@@ -56,20 +56,23 @@ class AppTheme {
     ],
   );
 
-  // Senior Theme (Class 11-12) - More mature, scientific look
+  // Senior Theme (Class 11-12) - More mature, professional, and academic look
   static final AppTheme senior = AppTheme(
-    backgroundColor: const Color(0xFFE0F7FA), // Light Cyan
-    cardGradient: const [Color(0xFF00ACC1), Color(0xFF00838F)], // Cyan/Teal
-    accentColor: const Color(0xFFFFAB91), // Deep Orange 200
-    navBarColor: const Color(0xFF1E293B),
-    primaryTextColor: const Color(0xFF263238),
-    secondaryTextColor: const Color(0xFF546E7A),
+    backgroundColor: const Color(0xFFF1F5F9), // Slate 100
+    cardGradient: const [
+      Color(0xFF0F172A), // Slate 900
+      Color(0xFF334155), // Slate 700
+    ],
+    accentColor: const Color(0xFF10B981), // Emerald 500
+    navBarColor: const Color(0xFF0F172A), // Slate 900
+    primaryTextColor: const Color(0xFF0F172A), // Slate 900
+    secondaryTextColor: const Color(0xFF64748B), // Slate 500
     categoryColors: [
-      const Color(0xFFB2EBF2), // Cyan 100
-      const Color(0xFFFFCCBC), // Deep Orange 100
-      const Color(0xFFDCEDC8), // Light Green 100
-      const Color(0xFFE1BEE7), // Purple 100
-      const Color(0xFFFFF9C4), // Yellow 100
+      const Color(0xFF6366F1), // Indigo 500
+      const Color(0xFFF59E0B), // Amber 500
+      const Color(0xFF10B981), // Emerald 500
+      const Color(0xFF8B5CF6), // Violet 500
+      const Color(0xFFEF4444), // Red 500
     ],
   );
 

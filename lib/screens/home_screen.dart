@@ -1103,88 +1103,138 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: responsive.hp(0.06)),
-          _buildSeniorHeader(),
-          SizedBox(height: responsive.gap(20)),
-          _buildSearchBar(theme),
+          _buildSeniorDashboardHeader(),
           SizedBox(height: responsive.gap(25)),
-          _buildStatsRow(theme),
-          SizedBox(height: responsive.gap(25)),
+          _buildSeniorSearchBar(theme),
+          SizedBox(height: responsive.gap(30)),
           Text(
-            "Jump Back In",
+            "Featured Primary Course",
             style: GoogleFonts.outfit(
-              fontSize: responsive.sp(18),
+              fontSize: responsive.sp(20),
               fontWeight: FontWeight.bold,
               color: theme.primaryTextColor,
             ),
           ),
           SizedBox(height: responsive.gap(15)),
-          _buildContinueLearningCard(theme),
-          SizedBox(height: responsive.gap(25)),
+          _buildFeaturedPrimaryCourse(theme),
+          SizedBox(height: responsive.gap(30)),
           Text(
-            "Quick Actions",
+            "Current Progress",
             style: GoogleFonts.outfit(
-              fontSize: responsive.sp(18),
+              fontSize: responsive.sp(20),
               fontWeight: FontWeight.bold,
               color: theme.primaryTextColor,
             ),
           ),
           SizedBox(height: responsive.gap(15)),
-          _buildQuickAccessGrid(theme),
-          SizedBox(height: responsive.gap(25)),
-          _buildDailyThinkCard(theme),
+          _buildSeniorProgressCard(theme),
+          SizedBox(height: responsive.gap(30)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Academic Tools",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(20),
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryTextColor,
+                ),
+              ),
+              Text(
+                "View History",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(14),
+                  fontWeight: FontWeight.w600,
+                  color: theme.cardGradient[0].withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: responsive.gap(15)),
+          _buildSeniorToolsGrid(theme),
+          SizedBox(height: responsive.gap(30)),
+          _buildSeniorInsightCard(theme),
           SizedBox(height: responsive.gap(120)),
         ],
       ),
     );
   }
 
-  Widget _buildSeniorHeader() {
+  Widget _buildSeniorDashboardHeader() {
     final responsive = Responsive(context);
     final theme = AppTheme.getTheme(_currentStandard);
     final now = DateTime.now();
-    final dateStr = "${now.day}/${now.month}/${now.year}";
+    final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final dateStr =
+        "${dayNames[now.weekday - 1]}, ${now.day} ${monthNames[now.month - 1]}";
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              dateStr,
-              style: GoogleFonts.outfit(
-                fontSize: responsive.sp(14),
-                fontWeight: FontWeight.w500,
-                color: theme.secondaryTextColor,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dateStr,
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(14),
+                  fontWeight: FontWeight.w600,
+                  color: theme.secondaryTextColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              "Hi, ${_userData?['name'] ?? 'Student'}",
-              style: GoogleFonts.outfit(
-                fontSize: responsive.sp(26),
-                fontWeight: FontWeight.bold,
-                color: theme.primaryTextColor,
+              const SizedBox(height: 4),
+              Text(
+                "Welcome back, ${_userData?['name'] ?? 'Scholar'}",
+                style: GoogleFonts.outfit(
+                  fontSize: responsive.sp(24),
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryTextColor,
+                  letterSpacing: -0.5,
+                ),
               ),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
             ],
           ),
-          child: CircleAvatar(
-            radius: 25,
-            backgroundColor: theme.accentColor.withOpacity(0.1),
-            child: Icon(
-              _getAvatarIcon(_userData?['avatar'] ?? widget.avatar),
-              color: theme.primaryTextColor,
-              size: 28,
+        ),
+        _buildHeaderStatIndicator(
+          theme,
+          Icons.local_fire_department_rounded,
+          "05",
+          Colors.orange,
+        ),
+        const SizedBox(width: 12),
+        Hero(
+          tag: 'profile_avatar',
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: theme.cardGradient[0].withOpacity(0.1),
+                width: 2,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: 24,
+              backgroundColor: Colors.white,
+              child: Icon(
+                _getAvatarIcon(_userData?['avatar'] ?? widget.avatar),
+                color: theme.cardGradient[0],
+                size: 24,
+              ),
             ),
           ),
         ),
@@ -1192,142 +1242,288 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar(AppTheme theme) {
+  Widget _buildHeaderStatIndicator(
+    AppTheme theme,
+    IconData icon,
+    String value,
+    Color color,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSeniorSearchBar(AppTheme theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.cardGradient[0].withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Icon(Icons.search_rounded, color: theme.secondaryTextColor),
-          const SizedBox(width: 15),
-          Text(
-            "Search for lessons, games...",
-            style: GoogleFonts.outfit(
-              color: theme.secondaryTextColor.withOpacity(0.7),
-              fontSize: 16,
+      child: TextField(
+        style: GoogleFonts.outfit(fontSize: 15, color: theme.primaryTextColor),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: "Search for topics or assignments...",
+          hintStyle: GoogleFonts.outfit(
+            color: theme.secondaryTextColor.withOpacity(0.6),
+            fontSize: 15,
+          ),
+          icon: Icon(
+            Icons.search_rounded,
+            color: theme.secondaryTextColor.withOpacity(0.5),
+            size: 22,
+          ),
+          suffixIcon: Icon(
+            Icons.tune_rounded,
+            color: theme.cardGradient[0].withOpacity(0.5),
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturedPrimaryCourse(AppTheme theme) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/lessons_list',
+          arguments: {'std': _currentStandard, 'subject': 'Computer'},
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: theme.cardGradient[0].withOpacity(0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 100,
+              width: 100,
+              decoration: BoxDecoration(
+                color: theme.categoryColors[0].withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.computer_rounded,
+                color: theme.categoryColors[0],
+                size: 50,
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.accentColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "MAJOR",
+                      style: GoogleFonts.outfit(
+                        color: theme.accentColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Computer Science",
+                    style: GoogleFonts.outfit(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryTextColor,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Master C++, Logic Gates & Python",
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      color: theme.secondaryTextColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: theme.secondaryTextColor.withOpacity(0.3),
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatsRow(AppTheme theme) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          _buildStatCard(
-            theme,
-            "Points",
-            "1,250",
-            Icons.star_rounded,
-            Colors.amber,
-          ),
-          const SizedBox(width: 15),
-          _buildStatCard(
-            theme,
-            "Streak",
-            "5 Days",
-            Icons.local_fire_department_rounded,
-            Colors.orange,
-          ),
-          const SizedBox(width: 15),
-          _buildStatCard(
-            theme,
-            "Completed",
-            "12 Lessons",
-            Icons.check_circle_rounded,
-            Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildSeniorSubjectGrid(AppTheme theme) {
+    final icons = [
+      Icons.computer_rounded,
+      Icons.language_rounded,
+      Icons.calculate_rounded,
+      Icons.biotech_rounded,
+      Icons.science_rounded,
+    ];
+    final names = ['Computer', 'Tamil', 'Maths', 'Chemistry', 'Physics'];
+    final colors = [
+      const Color(0xFF6366F1), // Indigo
+      const Color(0xFFF59E0B), // Amber
+      const Color(0xFF10B981), // Emerald
+      const Color(0xFFEC4899), // Pink
+      const Color(0xFF06B6D4), // Cyan
+    ];
 
-  Widget _buildStatCard(
-    AppTheme theme,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      decoration: BoxDecoration(
-        color: theme.cardGradient[0], // Using theme primary color
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: theme.cardGradient[0].withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.4,
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
+      itemCount: names.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/lessons_list',
+              arguments: {'std': _currentStandard, 'subject': names[index]},
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: colors[index % colors.length].withOpacity(0.1),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colors[index % colors.length].withOpacity(0.02),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colors[index % colors.length].withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icons[index % icons.length],
+                    color: colors[index % colors.length],
+                    size: 22,
+                  ),
                 ),
-              ),
-              Text(
-                label,
-                style: GoogleFonts.outfit(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 12,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        names[index],
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryTextColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        "Term 1 & 2",
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          color: theme.secondaryTextColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildDailyThinkCard(AppTheme theme) {
+  Widget _buildSeniorProgressCard(AppTheme theme) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [const Color(0xFF263238), const Color(0xFF37474F)],
+          colors: theme.cardGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: theme.cardGradient[0].withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -1335,188 +1531,188 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.lightbulb, color: Colors.yellowAccent, size: 24),
-              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.trending_up_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "On Track",
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Text(
-                "Fact of the Day",
+                "Level $_currentStandard",
                 style: GoogleFonts.outfit(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  letterSpacing: 1,
+                  color: Colors.white.withOpacity(0.8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           Text(
-            "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion of the iron!",
+            "Quantum Physics I",
             style: GoogleFonts.outfit(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
-              fontSize: 18,
-              height: 1.4,
+              letterSpacing: -0.5,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContinueLearningCard(AppTheme theme) {
-    // responsive variable removed as it was unused
-    return Container(
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: theme.accentColor.withOpacity(0.3),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF263238).withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 60,
-            width: 60,
-            decoration: BoxDecoration(
-              color: theme.accentColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(
-              Icons.functions_rounded,
-              color: theme.accentColor,
-              size: 30,
+          const SizedBox(height: 4),
+          Text(
+            "Next: Wave-Particle Duality Principle",
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.7),
+              fontWeight: FontWeight.w400,
             ),
           ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Linear Equations",
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: theme.primaryTextColor,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "Mathematics • 65% Completed",
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    color: theme.secondaryTextColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: LinearProgressIndicator(
-                    value: 0.65,
-                    backgroundColor: theme.accentColor.withOpacity(0.1),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      theme.accentColor,
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Overall Efficiency",
+                          style: GoogleFonts.outfit(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "68%",
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    minHeight: 6,
-                  ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: 0.68,
+                        backgroundColor: Colors.white.withOpacity(0.1),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                        minHeight: 6,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 15),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: theme.primaryTextColor,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.play_arrow_rounded,
-              color: Colors.white,
-              size: 24,
-            ),
+              ),
+              const SizedBox(width: 20),
+              Container(
+                height: 48,
+                width: 48,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.play_arrow_rounded,
+                  color: theme.cardGradient[0],
+                  size: 28,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickAccessGrid(AppTheme theme) {
-    // responsive variable removed as it was unused
-    final items = [
+  Widget _buildSeniorToolsGrid(AppTheme theme) {
+    final tools = [
       {
-        'title': 'Assignments',
+        'title': 'Labs',
+        'icon': Icons.biotech_rounded,
+        'color': const Color(0xFF6366F1),
+      },
+      {
+        'title': 'Exams',
         'icon': Icons.assignment_rounded,
-        'color': const Color(0xFF6C63FF),
+        'color': const Color(0xFFF59E0B),
       },
       {
-        'title': 'Quiz',
-        'icon': Icons.quiz_rounded,
-        'color': const Color(0xFFFF6584),
+        'title': 'Library',
+        'icon': Icons.collections_bookmark_rounded,
+        'color': const Color(0xFF10B981),
       },
       {
-        'title': 'Results',
-        'icon': Icons.bar_chart_rounded,
-        'color': const Color(0xFF38B6FF),
-      },
-      {
-        'title': 'Calendar',
-        'icon': Icons.calendar_month_rounded,
-        'color': const Color(0xFFFFBA08),
+        'title': 'Forum',
+        'icon': Icons.forum_rounded,
+        'color': const Color(0xFF8B5CF6),
       },
     ];
 
     return Wrap(
-      spacing: 15,
-      runSpacing: 15,
+      spacing: 12,
+      runSpacing: 12,
       children:
-          items.map((item) {
+          tools.map((tool) {
             return Container(
-              width:
-                  MediaQuery.of(context).size.width / 2.3, // Roughly half width
-              padding: const EdgeInsets.all(20),
+              width: (MediaQuery.of(context).size.width - 52) / 2,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: (item['color'] as Color).withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+                border: Border.all(
+                  color: theme.cardGradient[0].withOpacity(0.04),
+                ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (item['color'] as Color).withOpacity(0.1),
-                      shape: BoxShape.circle,
+                      color: (tool['color'] as Color).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      item['icon'] as IconData,
-                      color: item['color'] as Color,
-                      size: 28,
+                      tool['icon'] as IconData,
+                      color: tool['color'] as Color,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(width: 12),
                   Text(
-                    item['title'] as String,
+                    tool['title'] as String,
                     style: GoogleFonts.outfit(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: theme.primaryTextColor,
                     ),
@@ -1525,6 +1721,62 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           }).toList(),
+    );
+  }
+
+  Widget _buildSeniorInsightCard(AppTheme theme) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.accentColor.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.lightbulb_outline_rounded,
+                color: theme.accentColor,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "ACADEMIC INSIGHT",
+                style: GoogleFonts.outfit(
+                  color: theme.accentColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "\"The important thing is not to stop questioning. Curiosity has its own reason for existing.\"",
+            style: GoogleFonts.outfit(
+              color: theme.primaryTextColor,
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              height: 1.5,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "— Albert Einstein",
+            style: GoogleFonts.outfit(
+              color: theme.secondaryTextColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

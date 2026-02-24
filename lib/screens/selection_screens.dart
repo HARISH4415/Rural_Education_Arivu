@@ -124,6 +124,22 @@ class StandardSelectionScreen extends StatelessWidget {
                 10,
                 Colors.cyan,
               ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Expert',
+                'Standard 11',
+                11,
+                Colors.amber,
+              ),
+              SizedBox(height: responsive.gap(18)),
+              _buildStandardButton(
+                context,
+                'Genius',
+                'Standard 12',
+                12,
+                Colors.deepPurple,
+              ),
               SizedBox(height: responsive.gap(40)),
             ],
           ),
@@ -593,6 +609,21 @@ class SubjectSelectionScreen extends StatelessWidget {
           'icon': Icons.fitness_center_rounded,
           'color': Colors.teal[400],
         };
+      case 'Computer':
+        return {
+          'icon': Icons.computer_rounded,
+          'color': const Color(0xFF6366F1), // Indigo
+        };
+      case 'Chemistry':
+        return {
+          'icon': Icons.biotech_rounded,
+          'color': const Color(0xFFEC4899), // Pink
+        };
+      case 'Physics':
+        return {
+          'icon': Icons.science_rounded,
+          'color': const Color(0xFF06B6D4), // Cyan
+        };
       default:
         return {'icon': Icons.book_rounded, 'color': Colors.grey[400]};
     }
@@ -600,7 +631,7 @@ class SubjectSelectionScreen extends StatelessWidget {
 }
 
 // --- GAMES LIST SCREEN ---
-class GamesListScreen extends StatelessWidget {
+class GamesListScreen extends StatefulWidget {
   final int standard;
   final String subject;
 
@@ -611,27 +642,37 @@ class GamesListScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final filteredGames = SyllabusModel.getFilteredContent(
-      standard,
-      subject,
-      'games',
-    );
-    // For Class 1-5, we use the topic-based layout (Class 1 style)
-    // For Class 1-10, we use the topic-based layout
-    final useClass1Style = standard <= 10;
+  State<GamesListScreen> createState() => _GamesListScreenState();
+}
 
-    final topics =
-        useClass1Style
-            ? SyllabusModel.getTopics(standard, subject)
-            : <String, List<Map<String, dynamic>>>{};
+class _GamesListScreenState extends State<GamesListScreen> {
+  int selectedTerm = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredGames =
+        SyllabusModel.getFilteredContent(
+          widget.standard,
+          widget.subject,
+          'games',
+        ).where((g) {
+          if (widget.standard >= 11) {
+            return g['term'] == 1; // Only Term One for senior games
+          }
+          return true;
+        }).toList();
+
+    // For Class 1-12, we use the topic-based layout
+    final useClass1Style = true;
+
+    final topics = SyllabusModel.getTopics(widget.standard, widget.subject);
     final responsive = Responsive(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
+      backgroundColor: AppTheme.getTheme(widget.standard).backgroundColor,
       appBar: AppBar(
         title: Text(
-          '$subject Games',
+          '${widget.subject} Games',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
             fontSize: responsive.sp(20),
@@ -642,45 +683,51 @@ class GamesListScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
       ),
-      body:
-          (filteredGames.isEmpty && topics.isEmpty)
-              ? _buildEmptyState(subject)
-              : (standard <= 10)
-              ? ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 25,
-                  vertical: 15,
-                ),
-                itemCount: topics.length + filteredGames.length,
-                itemBuilder: (context, index) {
-                  if (index < topics.length) {
-                    final topicName = topics.keys.elementAt(index);
-                    final levels = topics[topicName]!;
-                    return _buildTopicCard(context, topicName, levels);
-                  } else {
-                    final game = filteredGames[index - topics.length];
-                    return _buildIndividualGameCard(context, game);
-                  }
-                },
-              )
-              : GridView.builder(
-                padding: responsive.padding(all: 25),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: responsive.gridColumns(
-                    mobile: 2,
-                    tablet: 3,
-                    desktop: 4,
-                  ),
-                  crossAxisSpacing: responsive.gap(15),
-                  mainAxisSpacing: responsive.gap(15),
-                  childAspectRatio: 0.88,
-                ),
-                itemCount: filteredGames.length,
-                itemBuilder: (context, index) {
-                  final game = filteredGames[index];
-                  return _buildGameGridCard(context, game);
-                },
-              ),
+      body: Column(
+        children: [
+          Expanded(
+            child:
+                (filteredGames.isEmpty && topics.isEmpty)
+                    ? _buildEmptyState(widget.subject)
+                    : (useClass1Style)
+                    ? ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                        vertical: 15,
+                      ),
+                      itemCount: topics.length + filteredGames.length,
+                      itemBuilder: (context, index) {
+                        if (index < topics.length) {
+                          final topicName = topics.keys.elementAt(index);
+                          final levels = topics[topicName]!;
+                          return _buildTopicCard(context, topicName, levels);
+                        } else {
+                          final game = filteredGames[index - topics.length];
+                          return _buildIndividualGameCard(context, game);
+                        }
+                      },
+                    )
+                    : GridView.builder(
+                      padding: responsive.padding(all: 25),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: responsive.gridColumns(
+                          mobile: 2,
+                          tablet: 3,
+                          desktop: 4,
+                        ),
+                        crossAxisSpacing: responsive.gap(15),
+                        mainAxisSpacing: responsive.gap(15),
+                        childAspectRatio: 0.88,
+                      ),
+                      itemCount: filteredGames.length,
+                      itemBuilder: (context, index) {
+                        final game = filteredGames[index];
+                        return _buildGameGridCard(context, game);
+                      },
+                    ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -689,7 +736,7 @@ class GamesListScreen extends StatelessWidget {
     String topicName,
     List<Map<String, dynamic>> levels,
   ) {
-    final theme = _getSubjectTheme(subject);
+    final theme = _getSubjectTheme(widget.subject);
     final responsive = Responsive(context);
     final currentLevel = 1;
     final totalLevels = levels.length;
@@ -783,9 +830,9 @@ class GamesListScreen extends StatelessWidget {
                   arguments: {
                     'topicName': topicName,
                     'levels': levels,
-                    'subject': subject,
+                    'subject': widget.subject,
                     'currentUnlockedLevel': currentLevel,
-                    'std': standard,
+                    'std': widget.standard,
                   },
                 );
               },
@@ -961,8 +1008,26 @@ class GamesListScreen extends StatelessWidget {
         };
       case 'Art & Craft':
         return {'icon': Icons.palette_rounded, 'color': Colors.pink[400]!};
+      case 'Computer':
+        return {
+          'icon': Icons.computer_rounded,
+          'color': const Color(0xFF6366F1),
+        };
+      case 'Chemistry':
+        return {
+          'icon': Icons.biotech_rounded,
+          'color': const Color(0xFFEC4899),
+        };
+      case 'Physics':
+        return {
+          'icon': Icons.science_rounded,
+          'color': const Color(0xFF06B6D4),
+        };
       default:
-        return {'icon': Icons.games_rounded, 'color': Colors.blueGrey};
+        return {
+          'icon': Icons.videogame_asset_rounded,
+          'color': Colors.blueGrey,
+        };
     }
   }
 
@@ -1008,7 +1073,7 @@ class GamesListScreen extends StatelessWidget {
 }
 
 // --- LESSONS LIST SCREEN (NOW SHOWS TOPICS WITH LEVEL MAPS) ---
-class LessonsListScreen extends StatelessWidget {
+class LessonsListScreen extends StatefulWidget {
   final int standard;
   final String subject;
 
@@ -1019,12 +1084,21 @@ class LessonsListScreen extends StatelessWidget {
   });
 
   @override
+  State<LessonsListScreen> createState() => _LessonsListScreenState();
+}
+
+class _LessonsListScreenState extends State<LessonsListScreen> {
+  int selectedTerm = 1;
+
+  @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.getTheme(widget.standard);
+
     return Scaffold(
-      backgroundColor: AppTheme.getTheme(standard).backgroundColor,
+      backgroundColor: theme.backgroundColor,
       appBar: AppBar(
         title: Text(
-          '$subject Gallery',
+          '${widget.subject} Academy',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
             color: const Color(0xFF1E293B),
@@ -1034,31 +1108,12 @@ class LessonsListScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
       ),
-      body:
-          // Use Book Library style for Class 1-10
-          standard <= 10
-              ? _buildBookLibrary(context)
-              : _buildTopicList(context),
+      body: Column(children: [Expanded(child: _buildBookLibrary(context))]),
     );
   }
 
-  Widget _buildTopicList(BuildContext context) {
-    final topics = SyllabusModel.getTopics(standard, subject);
-    return topics.isEmpty
-        ? _buildEmptyLessons(subject)
-        : ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-          itemCount: topics.length,
-          itemBuilder: (context, index) {
-            final topicName = topics.keys.elementAt(index);
-            final levels = topics[topicName]!;
-            return _buildTopicCard(context, topicName, levels);
-          },
-        );
-  }
-
   Widget _buildBookLibrary(BuildContext context) {
-    final theme = _getTheme(subject);
+    final themeData = _getTheme(widget.subject);
 
     // Helper to get book URLs - Add your Drive links here!
     String getBookUrl(int std, String sub, int term) {
@@ -1247,6 +1302,32 @@ class LessonsListScreen extends StatelessWidget {
             return 'https://drive.google.com/file/d/1QzT1e02ttmOXolN9-IGAMkXV1EVbMg8R/view?usp=drive_link';
           return '';
 
+        case 11:
+          //class 11
+          if (sub == 'Computer' && term == 1)
+            return 'https://drive.google.com/file/d/1PCe1kgSAa1sTd3yUIfLLc_jqErmUB5fc/view?usp=drive_link';
+          if (sub == 'Tamil' && term == 1) return '';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/1S9SFHbYsPAG2GWatybPB9ogFBL2FG2C2/view?usp=drive_link';
+          if (sub == 'Chemistry' && term == 1)
+            return 'https://drive.google.com/file/d/1I1d00U3DEsk-MlYBwCE9X2fqzEHnYLxL/view?usp=drive_link';
+          if (sub == 'Physics' && term == 1)
+            return 'https://drive.google.com/file/d/1Gyn2Zt97u9LFHpCRxh23RpYtMNt4MjL7/view?usp=drive_link';
+          return '';
+
+        case 12:
+          // Add your Class 11-12 links here
+          if (sub == 'Computer' && term == 1)
+            return 'https://drive.google.com/file/d/1Qkanw6bmb_a_zp4Hcuh5mGgJhuS3TvxZ/view?usp=drive_link';
+          if (sub == 'Tamil' && term == 1) return '';
+          if (sub == 'Maths' && term == 1)
+            return 'https://drive.google.com/file/d/17SyDSj34p7mVyyBDcstc8vnB9uuATqdW/view?usp=drive_link';
+          if (sub == 'Chemistry' && term == 1)
+            return 'https://drive.google.com/file/d/1fozyLLP1A2K0P6IjwWCVUybnKsKzRFuX/view?usp=drive_link';
+          if (sub == 'Physics' && term == 1)
+            return 'https://drive.google.com/file/d/1oARerywElmmlYBmzWtp_6DONjYN0h_kj/view?usp=drive_link';
+          return '';
+
         default:
           return '';
       }
@@ -1255,25 +1336,25 @@ class LessonsListScreen extends StatelessWidget {
     // Books list using the helper above
     final books = [
       {
-        'title': 'Standard $standard $subject Textbook',
+        'title': 'Standard ${widget.standard} ${widget.subject} Textbook',
         'term': 'Term 1',
         'icon': Icons.menu_book_rounded,
-        'url': getBookUrl(standard, subject, 1),
+        'url': getBookUrl(widget.standard, widget.subject, 1),
       },
-      if (standard <= 5) ...[
+      if (widget.standard <= 5 || widget.standard >= 11)
         {
-          'title': 'Standard $standard $subject Textbook',
+          'title': 'Standard ${widget.standard} ${widget.subject} Textbook',
           'term': 'Term 2',
           'icon': Icons.menu_book_rounded,
-          'url': getBookUrl(standard, subject, 2),
+          'url': getBookUrl(widget.standard, widget.subject, 2),
         },
+      if (widget.standard <= 5)
         {
-          'title': 'Standard $standard $subject Textbook',
+          'title': 'Standard ${widget.standard} ${widget.subject} Textbook',
           'term': 'Term 3',
           'icon': Icons.menu_book_rounded,
-          'url': getBookUrl(standard, subject, 3),
+          'url': getBookUrl(widget.standard, widget.subject, 3),
         },
-      ],
     ];
 
     return Column(
@@ -1283,14 +1364,14 @@ class LessonsListScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: (theme['color'] as Color).withOpacity(0.1),
+              color: (themeData['color'] as Color).withOpacity(0.1),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.library_books_rounded,
-                  color: theme['color'] as Color,
+                  color: themeData['color'] as Color,
                   size: 30,
                 ),
                 const SizedBox(width: 15),
@@ -1333,12 +1414,12 @@ class LessonsListScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
-                        color: (theme['color'] as Color).withOpacity(0.1),
+                        color: (themeData['color'] as Color).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
                         book['icon'] as IconData,
-                        color: theme['color'] as Color,
+                        color: themeData['color'] as Color,
                         size: 30,
                       ),
                     ),
@@ -1406,154 +1487,6 @@ class LessonsListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopicCard(
-    BuildContext context,
-    String topicName,
-    List<Map<String, dynamic>> levels,
-  ) {
-    final theme = _getTheme(subject);
-    final responsive = Responsive(context);
-
-    // Calculate progress (for now, assume level 1 is unlocked)
-    final currentLevel = 1; // TODO: Load from user progress
-    final totalLevels = levels.length;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 25),
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(35),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: (theme['color'] as Color).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Icon(
-                  theme['icon'] as IconData,
-                  color: theme['color'] as Color,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      topicName,
-                      style: GoogleFonts.outfit(
-                        fontSize: responsive.sp(18),
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      '$totalLevels Levels',
-                      style: GoogleFonts.outfit(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                        fontSize: responsive.sp(13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Progress indicator
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(
-                      value: currentLevel / totalLevels,
-                      backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        theme['color'] as Color,
-                      ),
-                      strokeWidth: 4,
-                    ),
-                  ),
-                  Text(
-                    '$currentLevel/$totalLevels',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1E293B),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            levels.first['description'] as String? ??
-                'Complete all levels to master this topic!',
-            style: GoogleFonts.outfit(
-              color: Colors.grey[600],
-              height: 1.5,
-              fontSize: 15,
-            ),
-          ),
-          const SizedBox(height: 25),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                // Navigate to level map
-                Navigator.pushNamed(
-                  context,
-                  '/level_map',
-                  arguments: {
-                    'topicName': topicName,
-                    'levels': levels,
-                    'subject': subject,
-                    'currentUnlockedLevel': currentLevel,
-                    'std': standard,
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E293B),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Start Adventure',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Map<String, dynamic> _getTheme(String subject) {
     switch (subject) {
       case 'Tamil':
@@ -1580,49 +1513,24 @@ class LessonsListScreen extends StatelessWidget {
           'icon': Icons.fitness_center_rounded,
           'color': Colors.teal[400],
         };
+      case 'Computer':
+        return {
+          'icon': Icons.computer_rounded,
+          'color': const Color(0xFF6366F1), // Indigo
+        };
+      case 'Chemistry':
+        return {
+          'icon': Icons.biotech_rounded,
+          'color': const Color(0xFFEC4899), // Pink
+        };
+      case 'Physics':
+        return {
+          'icon': Icons.science_rounded,
+          'color': const Color(0xFF06B6D4), // Cyan
+        };
       default:
         return {'icon': Icons.auto_stories_rounded, 'color': Colors.blueGrey};
     }
-  }
-
-  Widget _buildEmptyLessons(String subject) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: const Icon(
-              Icons.auto_stories_rounded,
-              size: 80,
-              color: Color(0xFF8B80F8),
-            ),
-          ),
-          const SizedBox(height: 25),
-          Text(
-            'Library Restocking!',
-            style: GoogleFonts.outfit(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'We are adding more lessons for $subject. Check back soon for new stories!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[600]),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

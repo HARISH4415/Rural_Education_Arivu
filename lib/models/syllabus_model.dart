@@ -19,7 +19,7 @@ class SyllabusModel {
       // Class 6-10: Tamil, English, Maths, Science, Social
       return ['Tamil', 'English', 'Maths', 'Science', 'Social'];
     } else {
-      return ['Maths', 'Science', 'English', 'History', 'Geography', 'Tamil'];
+      return ['Computer', 'Tamil', 'Maths', 'Chemistry', 'Physics'];
     }
   }
 
@@ -91,8 +91,9 @@ class SyllabusModel {
   // Get topics with levels for a given standard and subject
   static Map<String, List<Map<String, dynamic>>> getTopics(
     int standard,
-    String subject,
-  ) {
+    String subject, {
+    int? term,
+  }) {
     Map<String, List<Map<String, dynamic>>> topicsSource = {};
 
     switch (standard) {
@@ -111,23 +112,34 @@ class SyllabusModel {
       case 5:
         topicsSource = std5Topics;
         break;
-      case 6:
-      case 7:
-      case 8:
-      case 9:
-      case 10:
-        topicsSource = seniorTopics;
+      case 11:
+        topicsSource = std11Topics;
+        break;
+      case 12:
+        topicsSource = std12Topics;
         break;
       // Add other standards as needed
       default:
-        return {};
+        // For Class 6-10
+        if (standard >= 6 && standard <= 10) {
+          topicsSource = seniorTopics;
+        } else {
+          return {};
+        }
     }
 
-    // Filter topics by subject
+    // Filter topics by subject and term
     return Map.fromEntries(
       topicsSource.entries.where((entry) {
         if (entry.value.isEmpty) return false;
-        return entry.value.first['subject'] == subject;
+        final matchSubject = entry.value.first['subject'] == subject;
+        if (!matchSubject) return false;
+
+        if (term != null) {
+          // Check if any level in this topic matches the term
+          return entry.value.any((level) => level['term'] == term);
+        }
+        return true;
       }),
     );
   }
